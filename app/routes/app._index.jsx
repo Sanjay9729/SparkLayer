@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useFetcher } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
@@ -140,10 +140,23 @@ export default function Index() {
   }, [fetcher.data?.product?.id, shopify]);
   const generateProduct = () => fetcher.submit({}, { method: "POST" });
 
+  const goToDashboard = useCallback(async () => {
+    try {
+      const response = await fetch("/app/dashboard-redirect");
+      const data = await response.json();
+      if (data.redirectUrl) {
+        window.open(data.redirectUrl, "_blank");
+      }
+    } catch (error) {
+      console.error("Failed to open dashboard:", error);
+      shopify.toast.show("Failed to open dashboard", { isError: true });
+    }
+  }, [shopify]);
+
   return (
-    <s-page heading="Shopify app template">
-      <s-button slot="primary-action" onClick={generateProduct}>
-        Generate a product
+    <s-page heading="SparkLayer B2B & Wholesale">
+      <s-button slot="primary-action" onClick={goToDashboard}>
+        Go to Dashboard
       </s-button>
 
       <s-section heading="Congrats on creating a new Shopify app 🎉">
